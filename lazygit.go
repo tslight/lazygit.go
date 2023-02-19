@@ -24,6 +24,11 @@ type Project struct {
 	Path string
 }
 
+type Config struct {
+	Token string
+	Path  string
+}
+
 func getProjects(token string, httpUrl bool) []Project {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", APIURL+"/projects", nil)
@@ -77,12 +82,43 @@ func getProjects(token string, httpUrl bool) []Project {
 }
 
 func main() {
+	var token string
+	var path string
+
 	flag.Parse()
-	if *Token == "" {
-		log.Fatal("No token provided")
+	if *Token != "" {
+		token = *Token
 	}
-	projects := getProjects(*Token, false)
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	file, err := os.Open(home + "/.lazygit.json")
+	if err != nil {
+		log.Fatal("ERROR: ", err)
+	}
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	conf := Config{}
+	if err := decoder.Decode(&conf); err != nil {
+		log.Fatal("ERROR:", err)
+	}
+
+	if conf.Token != "" {
+		token = conf.Token
+	}
+
+	if conf.Path != "" {
+		path = conf.Path
+	} else {
+		path = *Path
+	}
+
+	projects := getProjects(token, false)
 	for _, v := range projects {
-		fmt.Printf("Cloning %s to %s/%s...\n", v.URL, *Path, v.Path)
+		fmt.Printf("Cloning %s to %s/%s...\n", v.URL, path, v.Path)
 	}
 }
