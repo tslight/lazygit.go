@@ -13,23 +13,16 @@ import (
 )
 
 var (
-	URL    = "https://gitlab.com"
-	APIURL = URL + "/api/v4"
-	Token  = flag.String("t", "", "GitLab API Token")
-	Path   = flag.String("p", ".", "path to clone projects to")
+	APIURL = "https://gitlab.com/api/v4"
+	Groups = flag.String("g", "", "GitLab Groups to work with")
 )
-
-type Project struct {
-	URL  string
-	Path string
-}
 
 type Config struct {
 	Token string
 	Path  string
 }
 
-func getProjects(token string, httpUrl bool) []Project {
+func getProjects(token string) []interface{} {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", APIURL+"/projects", nil)
 	if err != nil {
@@ -50,45 +43,20 @@ func getProjects(token string, httpUrl bool) []Project {
 		log.Fatal(err)
 	}
 
-	var objs interface{}
-	json.Unmarshal(body, &objs)
+	var projects interface{}
+	json.Unmarshal(body, &projects)
 
 	// Ensure that we have array of objects.
-	objArr, ok := objs.([]interface{})
+	pArr, ok := projects.([]interface{})
 	if !ok {
 		log.Fatal("expected an array of objects")
 	}
 
-	var projects []Project
-
-	// Handle each object as a map[string]interface{}.
-	for i, obj := range objArr {
-		obj, ok := obj.(map[string]interface{})
-		if !ok {
-			log.Fatalf("expected type map[string]interface{}, got %s", reflect.TypeOf(objArr[i]))
-		}
-		if httpUrl {
-			projects = append(projects, Project{
-				URL:  fmt.Sprint((obj["http_url_to_repo"])),
-				Path: fmt.Sprint((obj["path_with_namespace"]))})
-		} else {
-			projects = append(projects, Project{
-				URL:  fmt.Sprint((obj["ssh_url_to_repo"])),
-				Path: fmt.Sprint((obj["path_with_namespace"]))})
-		}
-	}
-
-	return projects
+	return pArr
 }
 
 func main() {
-	var token string
-	var path string
-
 	flag.Parse()
-	if *Token != "" {
-		token = *Token
-	}
 
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -107,18 +75,12 @@ func main() {
 		log.Fatal("ERROR:", err)
 	}
 
-	if conf.Token != "" {
-		token = conf.Token
-	}
-
-	if conf.Path != "" {
-		path = conf.Path
-	} else {
-		path = *Path
-	}
-
-	projects := getProjects(token, false)
-	for _, v := range projects {
-		fmt.Printf("Cloning %s to %s/%s...\n", v.URL, path, v.Path)
+	projects := getProjects(conf.Token)
+	for k, v := range projects {
+		p, ok := v.(map[string]interface{})
+		if !ok {
+			log.Fatalf("expected type map[string]interface{}, got %s", reflect.TypeOf(projects[k]))
+		}
+		fmt.Printf("Cloning %s to %s/%s...\n", p["ssh_url_to_repo"], conf.Path, p["path_with_namespace"])
 	}
 }
