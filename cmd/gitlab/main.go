@@ -11,8 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tslight/lazygit.go/cmd/common"
-	"github.com/tslight/lazygit.go/cmd/gitlab"
+	"github.com/tslight/lazygit.go/pkg/common"
+	"github.com/tslight/lazygit.go/pkg/gitlab"
 )
 
 func main() {
