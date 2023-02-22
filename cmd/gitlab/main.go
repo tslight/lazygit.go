@@ -15,6 +15,8 @@ import (
 	"github.com/tslight/lazygit.go/pkg/gitlab"
 )
 
+var Version = "unknown"
+
 func main() {
 	var file *os.File
 
