@@ -79,6 +79,36 @@ func GenerateConfig(configPath string) *os.File {
 	return file
 }
 
+func GetConfig(path string) Config {
+	var file *os.File
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	configFile := filepath.Join(home, path)
+	file, err = os.Open(configFile)
+	if err != nil {
+		if strings.Contains(err.Error(), "no such file or directory") {
+			file = GenerateConfig(configFile)
+		} else {
+			log.Fatal("ERROR: ", err)
+		}
+	}
+
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	conf := Config{}
+	if err := decoder.Decode(&conf); err != nil {
+		log.Fatal("ERROR:", err)
+	}
+	conf.Path = AbsHomeDir(conf.Path)
+
+	return conf
+}
+
 func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var cmd *exec.Cmd
