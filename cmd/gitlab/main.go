@@ -49,7 +49,7 @@ func main() {
 	if len(groups) > 0 {
 		projects = gitlab.GetGroupProjects(conf.Token, groups)
 	} else {
-		projects = gitlab.getAllProjects(conf.Token)
+		projects = gitlab.GetAllProjects(conf.Token)
 	}
 
 	var wg sync.WaitGroup

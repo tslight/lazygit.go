@@ -2,14 +2,15 @@ package common
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"ioutil"
-	"json"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 func AbsHomeDir(path string) string {
