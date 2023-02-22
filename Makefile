@@ -9,10 +9,8 @@ FLAGS := "-ldflags=-s -w -X main.Version=$(VERSION)"
 OPERATING_SYSTEMS = darwin linux windows freebsd openbsd
 $(OPERATING_SYSTEMS):
 	GOARCH=$(ARCH) GOOS=$(@) go build $(FLAGS) -o ./$(CMD)-$(@)-$(ARCH) ./cmd/$(CMD)
-
 ARCHITECTURES = amd64 arm64
 $(ARCHITECTURES):; @CMD=$(CMD) ARCH=$(@) $(MAKE) $(OPERATING_SYSTEMS)
-
 CMDS = gitlab github
 $(CMDS):; @CMD=$(@) $(MAKE) -j $(ARCHITECTURES)
 
