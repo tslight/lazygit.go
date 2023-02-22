@@ -27,7 +27,7 @@ jobs:
     - name: Release
       run: |
         assets=()
-        for asset in ./git*-*-*-*; do
+        for asset in ./git*-*-*; do
           assets+=("-a" "$asset")
         done
         tag_name="${GITHUB_REF##*/}"
