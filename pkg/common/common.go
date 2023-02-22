@@ -129,9 +129,7 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 
 	fmt.Print(stderr.String())
 
-	if stdout.String() == "Already up to date.\n" {
-		fmt.Printf("%v up to date\n", path)
-	} else {
+	if stdout.String() != "Already up to date.\n" {
 		fmt.Print(stdout.String())
 	}
 }
