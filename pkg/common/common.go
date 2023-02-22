@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -67,7 +66,7 @@ func GenerateConfig(configPath string) *os.File {
 		log.Fatal("ERROR: Failed to marshal config to json: ", err)
 	}
 
-	if err := ioutil.WriteFile(configPath, b, 0644); err != nil {
+	if err := os.WriteFile(configPath, b, 0600); err != nil {
 		log.Fatal("ERROR: Failed to write config to file: ", err)
 	}
 	fmt.Println("Wrote config to ", configPath)

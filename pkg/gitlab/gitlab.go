@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -26,7 +26,10 @@ func getGroupIds(token string, groupNames []string) []string {
 	req.URL.RawQuery = qp.Encode()
 	req.Header.Add("PRIVATE-TOKEN", token)
 	response, err := client.Do(req)
-	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,12 +79,17 @@ func GetGroupProjects(token string, groupNames []string) []interface{} {
 		qp.Add("archived", "false")
 		req.URL.RawQuery = qp.Encode()
 		response, err := client.Do(req)
-		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 		var groupProjects interface{}
-		json.Unmarshal(body, &groupProjects)
+		if err := json.Unmarshal(body, &groupProjects); err != nil {
+			log.Fatal(err)
+		}
 		gpArr, ok := groupProjects.([]interface{})
 		if !ok {
 			log.Fatal("expected an array of objects")
@@ -107,13 +115,18 @@ func GetAllProjects(token string) []interface{} {
 
 	req.Header.Add("PRIVATE-TOKEN", token)
 	response, err := client.Do(req)
-	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var projects interface{}
-	json.Unmarshal(body, &projects)
+	if err := json.Unmarshal(body, &projects); err != nil {
+		log.Fatal(err)
+	}
 
 	// Ensure that we have array of objects.
 	pArr, ok := projects.([]interface{})
