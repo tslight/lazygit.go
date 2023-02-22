@@ -10,14 +10,18 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"reflect"
+	"strings"
+	"sync"
 )
 
 var APIURL = "https://gitlab.com/api/v4"
 
 type Config struct {
-	Token string
-	Path  string
+	Token string `json:"token"`
+	Path  string `json:"path"`
 }
 
 func getGroupIds(token string, groupNames []string) []string {
@@ -102,8 +106,7 @@ func getAllProjects(token string) []interface{} {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", APIURL+"/projects", nil)
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	qp := url.Values{}
@@ -131,16 +134,118 @@ func getAllProjects(token string) []interface{} {
 	return pArr
 }
 
+func parseHomeDirSymbols(path string) string {
+	if strings.HasPrefix(path, "~") {
+		dirname, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return filepath.Join(dirname, path[1:])
+	}
+	if strings.HasPrefix(path, "$HOME") {
+		dirname, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return filepath.Join(dirname, path[5:])
+	}
+	if strings.HasPrefix(path, "%USERPROFILE%") {
+		dirname, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return filepath.Join(dirname, path[13:])
+	}
+	return path
+}
+
+func generateConfig(configPath string) *os.File {
+	var token string
+	var path string
+	fmt.Printf("Creating configuration json file at %s\n", configPath)
+
+	for {
+		fmt.Print("GitLab API token: ")
+		fmt.Scanln(&token)
+		if token != "" {
+			break
+		}
+	}
+
+	for {
+		fmt.Print("Directory to clone to: ")
+		fmt.Scanln(&path)
+		path = parseHomeDirSymbols(path)
+		if stat, err := os.Stat(path); err == nil && stat.IsDir() {
+			break
+		}
+		fmt.Printf("%s doesn't exist or isn't a directory!\n", path)
+	}
+
+	config := Config{token, path}
+	b, err := json.MarshalIndent(config, "", " ")
+	if err != nil {
+		log.Fatal("ERROR: Failed to marshal config to json: ", err)
+	}
+
+	if err := ioutil.WriteFile(configPath, b, 0644); err != nil {
+		log.Fatal("ERROR: Failed to write config to file: ", err)
+	}
+	fmt.Println("Wrote config to ", configPath)
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		log.Fatal("ERROR: Failed to access config: ", err)
+	}
+
+	return file
+}
+
+func gitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	var cmd *exec.Cmd
+	if stat, err := os.Stat(path); err == nil && stat.IsDir() {
+		cmd = exec.Command("git", "-C", path, "pull")
+	} else {
+		cmd = exec.Command("git", "clone", url, path)
+	}
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Print(stderr.String())
+
+	if stdout.String() == "Already up to date.\n" {
+		fmt.Printf("%v up to date\n", path)
+	} else {
+		fmt.Print(stdout.String())
+	}
+}
+
 func main() {
+	var file *os.File
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	file, err := os.Open(home + "/.lazygit.json")
+	configFile := home + "/.lazygit.json"
+	file, err = os.Open(configFile)
 	if err != nil {
-		log.Fatal("ERROR: ", err)
+		if strings.Contains(err.Error(), "no such file or directory") {
+			file = generateConfig(configFile)
+		} else {
+			log.Fatal("ERROR: ", err)
+		}
 	}
+
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
@@ -148,6 +253,7 @@ func main() {
 	if err := decoder.Decode(&conf); err != nil {
 		log.Fatal("ERROR:", err)
 	}
+	conf.Path = parseHomeDirSymbols(conf.Path)
 
 	var projects []interface{}
 	flag.Parse()
@@ -159,11 +265,18 @@ func main() {
 		projects = getAllProjects(conf.Token)
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(len(projects))
+
 	for k, v := range projects {
 		p, ok := v.(map[string]interface{})
 		if !ok {
 			log.Fatalf("expected type map[string]interface{}, got %s", reflect.TypeOf(projects[k]))
 		}
-		fmt.Printf("Cloning %s to %s/%s...\n", p["ssh_url_to_repo"], conf.Path, p["path_with_namespace"])
+		url := fmt.Sprint(p["ssh_url_to_repo"])
+		projectPath := filepath.Join(conf.Path, fmt.Sprint(p["path_with_namespace"]))
+		go gitCloneOrPull(url, projectPath, &wg)
 	}
+
+	wg.Wait()
 }
