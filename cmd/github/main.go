@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/tslight/lazygit.go/pkg/common"
-	"github.com/tslight/lazygit.go/pkg/gitlab"
+	"github.com/tslight/lazygit.go/pkg/github"
 )
 
 var Version = "unknown"
@@ -25,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	configFile := home + "/.lazygitlab.json"
+	configFile := home + "/.lazygithub.json"
 	file, err = os.Open(configFile)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file or directory") {
@@ -44,26 +43,18 @@ func main() {
 	}
 	conf.Path = common.AbsHomeDir(conf.Path)
 
-	var projects []interface{}
-	flag.Parse()
-	groups := flag.Args()
-
-	if len(groups) > 0 {
-		projects = gitlab.GetGroupProjects(conf.Token, groups)
-	} else {
-		projects = gitlab.GetAllProjects(conf.Token)
-	}
+	repos := github.GetAllRepos(conf.Token)
 
 	var wg sync.WaitGroup
-	wg.Add(len(projects))
+	wg.Add(len(repos))
 
-	for k, v := range projects {
+	for k, v := range repos {
 		p, ok := v.(map[string]interface{})
 		if !ok {
-			log.Fatalf("expected type map[string]interface{}, got %s", reflect.TypeOf(projects[k]))
+			log.Fatalf("expected type map[string]interface{}, got %s", reflect.TypeOf(repos[k]))
 		}
-		url := fmt.Sprint(p["ssh_url_to_repo"])
-		projectPath := filepath.Join(conf.Path, fmt.Sprint(p["path_with_namespace"]))
+		url := fmt.Sprint(p["ssh_url"])
+		projectPath := filepath.Join(conf.Path, fmt.Sprint(p["full_name"]))
 		go common.GitCloneOrPull(url, projectPath, &wg)
 	}
 

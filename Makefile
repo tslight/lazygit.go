@@ -11,14 +11,14 @@ $(OPERATING_SYSTEMS):
 	GOARCH=$(ARCH) GOOS=$(@) go build $(FLAGS) -o ./$(CMD)-$(@)-$(ARCH) ./cmd/$(CMD)
 
 ARCHITECTURES = amd64 arm64
-$(ARCHITECTURES): ; @CMD=$(CMD) ARCH=$(@) $(MAKE) $(OPERATING_SYSTEMS)
+$(ARCHITECTURES):; @CMD=$(CMD) ARCH=$(@) $(MAKE) $(OPERATING_SYSTEMS)
 
-CMDS = github gitlab
-$(CMDS): ; @CMD=$(@) $(MAKE) -j $(ARCHITECTURES)
+CMDS = gitlab github
+$(CMDS):; @CMD=$(@) $(MAKE) -j $(ARCHITECTURES)
 
 all: $(CMDS)
 
-clean: ; @rm -fv ./git*-*-*-*
+clean:; @rm -fv ./git*-*-*
 
 test:
 	@go vet ./...
