@@ -1,9 +1,9 @@
  ![CI Result](https://github.com/tslight/lazygit.go/actions/workflows/build.yml/badge.svg?event=push) [![Go Report Card](https://goreportcard.com/badge/github.com/tslight/lazygit.go)](https://goreportcard.com/report/github.com/tslight/lazygit.go) [![Go Reference](https://pkg.go.dev/badge/github.com/tslight/lazygit.go.svg)](https://pkg.go.dev/github.com/tslight/lazygit.go)
 # GitHub & GitLab API Clients
 
-Clone or pull all your projects/repos in one fell swoop.
+*Clone or pull all your projects/repos in one fell swoop.*
 
-For GitLab you can limit this to only certain groups.
+*For GitLab you can limit this to only certain groups.*
 
 ## Installation
 
