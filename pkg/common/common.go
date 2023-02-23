@@ -3,14 +3,49 @@ package common
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 )
+
+func ConfDir() string {
+	var dir string
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	switch runtime.GOOS {
+	case "linux", "freebsd", "openbsd":
+		dir = os.Getenv("XDG_CONFIG_HOME")
+	case "windows":
+		dir = os.Getenv("APPDATA")
+	case "darwin":
+		dir = filepath.Join(home, "/Library/Application Support")
+	}
+
+	if dir == "" {
+		dir = filepath.Join(home, ".config")
+	}
+
+	return filepath.Join(dir, "lazygit")
+}
+
+func mkConfDir(path string) {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
 
 func AbsHomeDir(path string) string {
 	if strings.HasPrefix(path, "~") {
@@ -40,6 +75,8 @@ func AbsHomeDir(path string) string {
 func GenerateConfig(configPath string) *os.File {
 	var token string
 	var path string
+	mkConfDir(ConfDir())
+
 	fmt.Printf("Creating configuration json file at %s\n", configPath)
 
 	for {
@@ -82,16 +119,10 @@ func GenerateConfig(configPath string) *os.File {
 func GetConfig(path string) Config {
 	var file *os.File
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	configFile := filepath.Join(home, path)
-	file, err = os.Open(configFile)
+	file, err := os.Open(path)
 	if err != nil {
 		if strings.Contains(err.Error(), "no such file or directory") {
-			file = GenerateConfig(configFile)
+			file = GenerateConfig(path)
 		} else {
 			log.Fatal("ERROR: ", err)
 		}

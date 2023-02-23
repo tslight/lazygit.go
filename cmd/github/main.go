@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"sync"
@@ -12,9 +14,20 @@ import (
 )
 
 var Version = "unknown"
+var version = flag.Bool("v", false, "print version info")
+var config = filepath.Join(common.ConfDir(), "github.json")
 
 func main() {
-	conf := common.GetConfig(".lazygithub.json")
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s%s\n\n", os.Args[0], common.ConfigUsage)
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+	if *version {
+		fmt.Println(Version)
+		return
+	}
+	conf := common.GetConfig(config)
 	repos := github.GetAllRepos(conf.Token)
 
 	var wg sync.WaitGroup

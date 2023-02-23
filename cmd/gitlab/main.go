@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"sync"
@@ -13,11 +14,27 @@ import (
 )
 
 var Version = "unknown"
+var version = flag.Bool("v", false, "print version info")
+var config = filepath.Join(common.ConfDir(), "gitlab.json")
 
 func main() {
-	conf := common.GetConfig(".lazygitlab.json")
-	var projects []interface{}
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), `Usage: %s [GROUP...] %s
+
+Optional [GROUP...] arguments will only clone or pull the projects found in
+those groups.
+
+`, os.Args[0], common.ConfigUsage)
+		flag.PrintDefaults()
+	}
 	flag.Parse()
+	if *version {
+		fmt.Println(Version)
+		return
+	}
+
+	conf := common.GetConfig(config)
+	var projects []interface{}
 	groups := flag.Args()
 
 	if len(groups) > 0 {
