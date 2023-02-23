@@ -37,6 +37,7 @@ If a JSON configuration file doesn't exist you will be prompted to enter an API
 token and a directory. Those choices will be saved to a JSON file the
 aforementioned directory.
 
+  -s    only show status of local repos
   -v    print version info
 ```
 
@@ -63,5 +64,6 @@ aforementioned directory.
 Optional [GROUP...] arguments will only clone or pull the projects found in
 those groups.
 
+  -s    only show status of local repos
   -v    print version info
 ```
