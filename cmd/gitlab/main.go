@@ -15,6 +15,7 @@ import (
 
 var Version = "unknown"
 var version = flag.Bool("v", false, "print version info")
+var status = flag.Bool("s", false, "only show unstaged local changes")
 var config = filepath.Join(common.ConfDir(), "gitlab.json")
 
 func main() {
@@ -34,6 +35,7 @@ those groups.
 	}
 
 	conf := common.GetConfig(config)
+
 	var projects []interface{}
 	groups := flag.Args()
 
@@ -53,7 +55,11 @@ those groups.
 		}
 		url := fmt.Sprint(p["ssh_url_to_repo"])
 		projectPath := filepath.Join(conf.Path, fmt.Sprint(p["path_with_namespace"]))
-		go common.GitCloneOrPull(url, projectPath, &wg)
+		if *status {
+			go common.GitStatus(projectPath, &wg)
+		} else {
+			go common.GitCloneOrPull(url, projectPath, &wg)
+		}
 	}
 
 	wg.Wait()
