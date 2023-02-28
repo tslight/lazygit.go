@@ -67,26 +67,18 @@ func mkConfDir(path string) {
 }
 
 func AbsHomeDir(path string) string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if strings.HasPrefix(path, "~") {
-		dirname, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return filepath.Join(dirname, path[1:])
+		return filepath.Join(home, path[1:])
 	}
 	if strings.HasPrefix(path, "$HOME") {
-		dirname, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return filepath.Join(dirname, path[5:])
+		return filepath.Join(home, path[5:])
 	}
 	if strings.HasPrefix(path, "%USERPROFILE%") {
-		dirname, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return filepath.Join(dirname, path[13:])
+		return filepath.Join(home, path[13:])
 	}
 	return path
 }
