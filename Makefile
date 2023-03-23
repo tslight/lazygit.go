@@ -24,3 +24,9 @@ test:
 	@go vet ./...
 	@go test ./... -covermode=count -coverprofile=c.out
 	@go tool cover -func=c.out
+
+install:
+	go build $(FLAGS) -o ./gitlab ./cmd/gitlab
+	go build $(FLAGS) -o ./github ./cmd/github
+	install -m 0755 ./gitlab /usr/local/bin/gitlab
+	install -m 0755 ./github /usr/local/bin/github
