@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"reflect"
 )
 
@@ -18,8 +17,7 @@ func getGroupIds(token string, groupNames []string) []string {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", APIURL+"/groups", nil)
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	qp := url.Values{}
 	qp.Add("per_page", "100")
@@ -69,8 +67,7 @@ func GetGroupProjects(token string, groupNames []string) []interface{} {
 		client := &http.Client{}
 		req, err := http.NewRequest("GET", APIURL+"/groups/"+id+"/projects", nil)
 		if err != nil {
-			fmt.Print(err.Error())
-			os.Exit(1)
+			log.Fatal(err)
 		}
 		req.Header.Add("PRIVATE-TOKEN", token)
 		qp := url.Values{}

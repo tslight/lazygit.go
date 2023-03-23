@@ -19,6 +19,8 @@ var status = flag.Bool("s", false, "only show unstaged local changes")
 var config = filepath.Join(common.ConfDir(), "gitlab.json")
 
 func main() {
+	// log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), `Usage: %s [GROUP...] %s
 

@@ -75,7 +75,7 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
+		log.Printf("%s FAILED!: %s", cmd.String(), err.Error())
 	}
 
 	fmt.Print(stderr.String())
