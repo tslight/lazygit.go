@@ -84,3 +84,20 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 		fmt.Print(stdout.String())
 	}
 }
+
+func AddKnownHosts(host string) {
+	var cmd *exec.Cmd
+	cmd = exec.Command("ssh-keyscan", "-H", host, ">>", "~/.ssh/known_hosts")
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		log.Printf("%s FAILED!: %s", cmd.String(), err.Error())
+	}
+
+	// fmt.Print(stdout.String())
+	// fmt.Print(stderr.String())
+}
