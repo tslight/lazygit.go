@@ -24,7 +24,7 @@ func GetSSHPubKey() []byte {
 	savePublicFileTo := fmt.Sprintf("%s/.ssh/id_rsa.pub", homeDir)
 
 	if _, err := os.Stat(savePublicFileTo); err == nil {
-		log.Printf("Found %s, so using that and not generating new keys.", savePublicFileTo)
+		log.Printf("Found %s. Not generating new keys.", savePublicFileTo)
 		publicKeyBytes, err := os.ReadFile(savePublicFileTo)
 		if err != nil {
 			log.Fatal(err.Error())

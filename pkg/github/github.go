@@ -57,17 +57,19 @@ func AddSSHKey(token string) {
 		log.Fatal(err)
 	}
 
-	log.Print("GitHub API Response Status: ", response.Status)
 	if response.StatusCode != 201 {
 		resBody, err := io.ReadAll(response.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 		if strings.Contains(string(resBody), `"message":"key is already in use"`) {
-			log.Print("Already uploaded this key to GitHub")
+			log.Print("Already uploaded this public SSH key to GitHub")
 		} else {
+			log.Print("GitHub API Response Status: ", response.Status)
 			log.Print(string(resBody))
 		}
+	} else {
+		log.Print("Successfully uploaded public SSH key to GitHub :-)")
 	}
 }
 

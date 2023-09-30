@@ -63,9 +63,12 @@ func GitStatus(path string, wg *sync.WaitGroup) {
 func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var cmd *exec.Cmd
+	var output string
 	if stat, err := os.Stat(path); err == nil && stat.IsDir() {
+		output = fmt.Sprintf("Updating %s... ", path)
 		cmd = exec.Command("git", "-C", path, "pull")
 	} else {
+		output = fmt.Sprintf("Cloning %s to %s... ", url, path)
 		cmd = exec.Command("git", "clone", url, path)
 	}
 
@@ -81,8 +84,11 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 	fmt.Print(stderr.String())
 
 	if stdout.String() != "Already up to date.\n" {
-		fmt.Print(stdout.String())
+		output += "\n" + stdout.String()
+	} else {
+		output += "Done!\n"
 	}
+	fmt.Print(output)
 }
 
 func AddKnownHosts(host string) {
