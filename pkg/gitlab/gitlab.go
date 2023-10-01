@@ -149,6 +149,9 @@ func GetGroupProjects(token string, groupNames []string) []interface{} {
 		projects = append(projects, gpArr...)
 	}
 
+	if len(projects) < 1 {
+		log.Printf("No projects found for %v groups :-(", groupNames)
+	}
 	return projects
 }
 
