@@ -101,15 +101,15 @@ func GenerateConfig(configPath string) *os.File {
 	for {
 		fmt.Print("Directory to clone to: ")
 		fmt.Scanln(&path)
-		path = AbsHomeDir(path)
-		if stat, err := os.Stat(path); err == nil && stat.IsDir() {
+		if path != "" {
 			break
 		}
-		err := os.MkdirAll(path, os.ModePerm)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		break
+	}
+
+	path = AbsHomeDir(path)
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	config := Config{token, path}
