@@ -105,7 +105,11 @@ func GenerateConfig(configPath string) *os.File {
 		if stat, err := os.Stat(path); err == nil && stat.IsDir() {
 			break
 		}
-		fmt.Printf("%s doesn't exist or isn't a directory!\n", path)
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		break
 	}
 
 	config := Config{token, path}

@@ -8,10 +8,65 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"os/user"
 	"reflect"
+	"strings"
+
+	"github.com/tslight/lazygit.go/pkg/common"
 )
 
 var APIURL = "https://gitlab.com/api/v4"
+
+func AddSSHKey(token string) {
+	sshPubKey := common.GetSSHPubKey()
+	user, err := user.Current()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	username := user.Username
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	body := url.Values{}
+	body.Set("title", username+"@"+hostname+" is a lazygit!")
+	body.Set("key", string(sshPubKey[:]))
+
+	client := &http.Client{}
+	req, err := http.NewRequest(
+		"POST",
+		APIURL+"/user/keys",
+		strings.NewReader(body.Encode()),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.Header.Add("PRIVATE-TOKEN", token)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	response, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if response.StatusCode != 201 {
+		resBody, err := io.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if strings.Contains(string(resBody), `{"message":{"fingerprint_sha256":["has already been taken"]}}`) {
+			log.Print("Already uploaded this public SSH key to GitLab.")
+		} else {
+			log.Print("GitLab API Response Status: ", response.Status)
+			log.Print(string(resBody))
+		}
+	} else {
+		log.Print("Successfully uploaded public SSH key to GitLab :-)")
+	}
+}
 
 func getGroupIds(token string, groupNames []string) []string {
 	client := &http.Client{}
