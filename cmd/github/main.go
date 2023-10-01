@@ -32,8 +32,6 @@ func main() {
 	github.AddSSHKey(conf.Token)
 	repos := github.GetAllRepos(conf.Token)
 
-	common.AddKnownHosts("github.com")
-
 	var wg sync.WaitGroup
 	wg.Add(len(repos))
 

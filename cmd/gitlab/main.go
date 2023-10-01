@@ -39,7 +39,6 @@ those groups.
 	conf := common.GetConfig(config)
 
 	gitlab.AddSSHKey(conf.Token)
-	common.AddKnownHosts("gitlab.com")
 
 	var projects []interface{}
 	groups := flag.Args()

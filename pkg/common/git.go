@@ -64,6 +64,12 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var cmd *exec.Cmd
 	var output string
+
+	// I know this is insecure, but there's really no way around it in this
+	// context without either using https to clone or spamming the user with
+	// incessant fingerprint questions for every repo we try to clone or pull :-/
+	os.Setenv("GIT_SSH_COMMAND", "ssh -o StrictHostKeyChecking=no")
+
 	if stat, err := os.Stat(path); err == nil && stat.IsDir() {
 		output = fmt.Sprintf("Updating %s... ", path)
 		cmd = exec.Command("git", "-C", path, "pull")
@@ -89,21 +95,4 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 		output += "Done!\n"
 	}
 	fmt.Print(output)
-}
-
-func AddKnownHosts(host string) {
-	var cmd *exec.Cmd
-	cmd = exec.Command("ssh-keyscan", "-H", host, ">>", "~/.ssh/known_hosts")
-
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		log.Printf("%s FAILED!: %s", cmd.String(), err.Error())
-	}
-
-	// fmt.Print(stdout.String())
-	// fmt.Print(stderr.String())
 }
