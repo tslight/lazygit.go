@@ -1,0 +1,9 @@
+schema = 3
+
+[mod]
+  [mod."golang.org/x/crypto"]
+    version = "v0.13.0"
+    hash = "sha256-4ThyrEJI4i9XBwx/q/R4jR41VJBZ/TSR0+UCkjTH95A="
+  [mod."golang.org/x/sys"]
+    version = "v0.12.0"
+    hash = "sha256-Ht/PhBJGWNBg4ksmdUu4+7hJjFypSwoUN/8DJricd+0="

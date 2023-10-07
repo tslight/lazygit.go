@@ -1,3 +1,5 @@
+/gomod2nix-template
+/result
 *.out
 *.log
 git*-*-*
