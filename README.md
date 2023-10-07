@@ -17,6 +17,13 @@ and operating system from the
 [Releases](https://github.com/tslight/lazygit.go/releases) page and move it to
 somewhere in your `$PATH`.
 
+There is also a `flake.nix` in this directory, if you know what that is & want
+to briefly access `gitlab` and `github` binaries, just run:
+
+``` shell
+nix shell github:tslight/lazygit.go
+```
+
 ## GitHub CLI Usage
 
 ``` text
