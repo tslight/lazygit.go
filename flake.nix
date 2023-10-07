@@ -1,5 +1,5 @@
 {
-  description = "A basic gomod2nix flake";
+  description = "Be a lazygit{hub,lab}";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
@@ -16,13 +16,13 @@
           # This has no effect on other platforms.
           callPackage = pkgs.darwin.apple_sdk_11_0.callPackage or pkgs.callPackage;
         in
-        {
-          packages.default = callPackage ./. {
-            inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
-          };
-          devShells.default = callPackage ./shell.nix {
-            inherit (gomod2nix.legacyPackages.${system}) buildGoApplication mkGoEnv gomod2nix;
-          };
-        })
+          {
+            packages.default = callPackage ./. {
+              inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
+            };
+            devShells.default = callPackage ./shell.nix {
+              inherit (gomod2nix.legacyPackages.${system}) buildGoApplication mkGoEnv gomod2nix;
+            };
+          })
     );
 }
