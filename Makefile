@@ -28,5 +28,6 @@ test:
 install:
 	go build $(FLAGS) -o ./gitlab ./cmd/gitlab
 	go build $(FLAGS) -o ./github ./cmd/github
-	install -m 0755 ./gitlab /usr/local/bin/gitlab
-	install -m 0755 ./github /usr/local/bin/github
+	mkdir -p $(GOPATH)/bin
+	install -m 0755 ./gitlab $(GOPATH)/bin/gitlab
+	install -m 0755 ./github $(GOPATH)/bin/github
