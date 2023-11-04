@@ -16,6 +16,7 @@
         in
           {
             # this gets nix shell working somehow...
+            # so you can run like this nix shell github:tslight/lazygit.go --command github
             packages.default = callPackage ./. {
               inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
             };
