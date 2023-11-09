@@ -90,7 +90,7 @@ func GitCloneOrPull(url string, path string, wg *sync.WaitGroup) {
 	fmt.Print(stderr.String())
 
 	if stdout.String() != "Already up to date.\n" {
-		output += "\n" + stdout.String()
+		stdout.String()
 	} else {
 		output += "Done!\n"
 	}
