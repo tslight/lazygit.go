@@ -28,7 +28,7 @@ func main() {
 		fmt.Println(Version)
 		return
 	}
-	conf := common.GetConfig(config)
+	conf := common.GetConfig(config, "GitHub")
 	github.AddSSHKey(conf.Token)
 	repos := github.GetAllRepos(conf.Token)
 

@@ -36,7 +36,7 @@ those groups.
 		return
 	}
 
-	conf := common.GetConfig(config)
+	conf := common.GetConfig(config, "GitLab")
 
 	gitlab.AddSSHKey(conf.Token)
 

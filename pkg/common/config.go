@@ -83,15 +83,15 @@ func AbsHomeDir(path string) string {
 	return path
 }
 
-func GenerateConfig(configPath string) *os.File {
+func GenerateConfig(configPath, forge string) *os.File {
 	var token string
 	var path string
 	mkConfDir(ConfDir())
 
-	fmt.Printf("Creating configuration json file at %s\n", configPath)
+	fmt.Printf("Creating %s configuration json file at %s\n", forge, configPath)
 
 	for {
-		fmt.Print("GitLab API token: ")
+		fmt.Print(forge, " API token: ")
 		fmt.Scanln(&token)
 		if token != "" {
 			break
@@ -131,13 +131,13 @@ func GenerateConfig(configPath string) *os.File {
 	return file
 }
 
-func GetConfig(path string) Config {
+func GetConfig(path, forge string) Config {
 	var file *os.File
 
 	file, err := os.Open(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			file = GenerateConfig(path)
+			file = GenerateConfig(path, forge)
 		} else {
 			log.Fatal("ERROR: ", err)
 		}
