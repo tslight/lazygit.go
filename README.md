@@ -12,6 +12,8 @@ go install github.com/tslight/lazygit.go/cmd/gitlab@latest
 go install github.com/tslight/lazygit.go/cmd/github@latest
 ```
 
+Or just run `go install ./...` from within this repository.
+
 Alternatively, download a suitable pre-compiled binary for your architecture
 and operating system from the
 [Releases](https://github.com/tslight/lazygit.go/releases) page and move it to
