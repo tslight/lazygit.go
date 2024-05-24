@@ -29,7 +29,7 @@ jobs:
       run: |
         assets=()
         for asset in ./git*-*-*; do
-          assets+=("-a" "$asset")
+          assets+=("$asset")
         done
         tag_name="${GITHUB_REF##*/}"
         gh release create "$tag_name" "${assets[@]}"
