@@ -10,9 +10,7 @@
       (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          # The current default sdk for macOS fails to compile go projects, so
-          # we use a newer one for now. This has no effect on other platforms.
-          callPackage = pkgs.darwin.apple_sdk_11_0.callPackage or pkgs.callPackage;
+          callPackage = pkgs.callPackage;
         in
           {
             # this gets nix shell working somehow...
@@ -24,7 +22,7 @@
               # The Nix packages provided in the environment
               packages = with pkgs; [
                 gnumake
-                go_1_20
+                go_1_24
                 godef # jump to definition in editors
                 golangci-lint # fast linter runners
                 gotools # Go tools like goimports, godoc, and others
